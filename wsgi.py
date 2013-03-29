@@ -27,6 +27,33 @@ def mongotest():
     body = "\n".join(last_few)
     return Response(body, content_type="text/plain;charset=UTF-8")
 
+@app.route('/token')
+def Token():
+    rec = {}
+    rec['token'] = "MoonXue"
+    rec['timestamp'] = request.args.get('timestamp','')
+    rec['nonce'] = request.args.get('nonce','')
+    echostr = request.args.get('echostr','')
+    signature = request.args.get('signature','')
+    result = checkRec(rec)
+    if result == signature:
+        return echostr
+    else:
+        return 
+    
+def checkRec(rec):
+    from hashlib import sha1
+    rec = sortedDictValues(rec)
+    s=''
+    for v in rec.values():
+        s+=v
+    return sha1(s).hexdigest()
+    
+def sortedDictValues(adict):
+    items = adict.items()
+    items.sort()
+    return [value for key, value in items]
+
 def mongodb_uri():
     local = os.environ.get("MONGODB", None)
     if local:
